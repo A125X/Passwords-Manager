@@ -1,4 +1,3 @@
-from email.policy import default
 import random
 import copy
 
@@ -71,6 +70,11 @@ class User:
 
     def set_passphrase(self, passphrase: str) -> None:
         self.__passphrase__ = passphrase
+    
+    #database saver
+    def save_database(self, path: str):
+        with open(path, 'w') as file:
+            file.writelines(data.get_title() + '\n' + data.get_body() + '\n' * 2 for data in self.get_database())
 
 class Startup:
     def __init__(self) -> None:
@@ -118,14 +122,47 @@ class Session:
         self.user = user
 
     def start_session(self) -> None:
-        print('Press s to show messages')
-        answer = input()
-        if answer == 's':
-            for item in self.user.get_database():
-                print(item.get_title(), item.get_body())
-        else:
-            print('Unexpected input: ', answer, '\n' + 'Please provide expected input')
-            self.start_session()
+        while True:
+            print(
+                'Press show to show messages \n' + 
+                'Press add to add new message \n' +
+                'Press edit n to edit message n \n' +
+                'Press encrypt to encrypt database \n' +
+                'Press decrypt to decrypt database \n' +
+                'Press exit to exit \n'
+                )
+            answer = input()
+            #show all the messages
+            if answer == 'show':
+                for item in self.user.get_database():
+                    print(item.get_title(), item.get_body())
+                print('')
+            #add a new message
+            elif answer == 'add':
+                title: str = input('Enter title of the message: \n')
+                body: str = input('Enter body of the message: \n')
+                message: Message = Message(title, body, is_encrypted=False)
+                df = self.user.get_database()
+                df.append(message)
+                self.user.set_database(df)
+                print('New message added \n')
+            #edit message
+            elif answer == 'edit':
+                pass
+            #encrypt entire database
+            elif answer == 'encrypt':
+                pass
+            #decrypt entire database
+            elif answer == 'decrypt':
+                pass
+            #break
+            elif answer == 'exit':
+                break
+            #unexpected input
+            else:
+                print('Unexpected input: ', answer, '\n' + 'Please provide expected input')
+            
+            self.user.save_database('db.txt')
 
 def __main__() -> int:
     startup: Startup = Startup()
